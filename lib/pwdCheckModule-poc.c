@@ -74,11 +74,7 @@ int check_password (char *pPasswd, char **ppErrStr, Entry *pEntry)
    memset(ascii, 0, sizeof(ascii));
 
    // check function arguments
-   if (!(pPasswd))
-      return(LDAP_OTHER);
-   if (!(ppErrStr))
-      return(LDAP_OTHER);
-   if (!(pEntry))
+   if ( (!(pPasswd)) || (!(ppErrStr)) || (!(pEntry)) )
       return(LDAP_OTHER);
 
    // gather password length and traits
@@ -135,14 +131,10 @@ int check_password (char *pPasswd, char **ppErrStr, Entry *pEntry)
 
    // count the number of unique traits of the password
    traits  = 0;
-   if (upper != 0)
-      traits++;
-   if (lower != 0)
-      traits++;
-   if (digit != 0)
-      traits++;
-   if (special != 0)
-      traits++;
+   traits += (upper   != 0) ? 1 : 0;
+   traits += (lower   != 0) ? 1 : 0;
+   traits += (digit   != 0) ? 1 : 0;
+   traits += (special != 0) ? 1 : 0;
 
    // discard password which are too short
    if (pwlen < 8)
