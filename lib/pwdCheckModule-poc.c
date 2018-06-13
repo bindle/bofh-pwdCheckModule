@@ -62,13 +62,13 @@ int check_password (char *pPasswd, char **ppErrStr, Entry *pEntry)
    size_t  pwlen;
    size_t  traits;
    size_t  charcount;
-   size_t ascii[128];
+   size_t  ascii[128];
 
-   digit   = 0;
-   upper   = 0;
-   lower   = 0;
-   special = 0;
-   pwlen   = 0;
+   digit       = 0;
+   upper       = 0;
+   lower       = 0;
+   special     = 0;
+   pwlen       = 0;
 
    memset(ascii, 0, sizeof(ascii));
 
