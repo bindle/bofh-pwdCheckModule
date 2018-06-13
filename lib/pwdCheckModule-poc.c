@@ -61,7 +61,7 @@ int check_password (char *pPasswd, char **ppErrStr, Entry *pEntry)
    size_t  special;
    size_t  pwlen;
    size_t  traits;
-   size_t  charcount;
+   size_t  uniquechars;
    size_t  ascii[128];
 
    digit       = 0;
@@ -69,6 +69,7 @@ int check_password (char *pPasswd, char **ppErrStr, Entry *pEntry)
    lower       = 0;
    special     = 0;
    pwlen       = 0;
+   uniquechars = 0;
 
    memset(ascii, 0, sizeof(ascii));
 
@@ -103,7 +104,7 @@ int check_password (char *pPasswd, char **ppErrStr, Entry *pEntry)
    };
 
    // determine if a specific character is over 25% of the characters
-   charcount = 0;
+   uniquechars = 0;
    for (pos = 31; pos < 127; pos++)
    {
       if (((ascii[pos] * 100) / pwlen) > 25)
@@ -112,21 +113,21 @@ int check_password (char *pPasswd, char **ppErrStr, Entry *pEntry)
          return(LDAP_OTHER);
       };
       if (ascii[pos] > 0)
-         charcount++;
+         uniquechars++;
    };
 
    // verify a sufficient number of unique characters relative to the password's length
-   if ( (((charcount * 100) / pwlen) < 60) && (pwlen < 16))
+   if ( (((uniquechars * 100) / pwlen) < 60) && (pwlen < 16))
    {
       *ppErrStr = strdup("Password does not contain enough unique characters");
       return(LDAP_OTHER);
    }
-   else if ( (((charcount * 100) / pwlen) < 50) && (pwlen < 32))
+   else if ( (((uniquechars * 100) / pwlen) < 50) && (pwlen < 32))
    {
       *ppErrStr = strdup("Password does not contain enough unique characters");
       return(LDAP_OTHER);
    }
-   else if ( (((charcount * 100) / pwlen) < 20) && (pwlen < 64))
+   else if ( (((uniquechars * 100) / pwlen) < 20) && (pwlen < 64))
    {
       *ppErrStr = strdup("Password does not contain enough unique characters");
       return(LDAP_OTHER);
