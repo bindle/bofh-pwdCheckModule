@@ -77,7 +77,7 @@ int check_password (char *pPasswd, char **ppErrStr, Entry *pEntry)
    if ( (!(pPasswd)) || (!(ppErrStr)) || (!(pEntry)) )
       return(LDAP_OTHER);
 
-   // gather password length and traits
+   // gather password length, traits, and character counts
    for(pwlen = 0; pPasswd[pwlen] != '\0'; pwlen++)
    {
       // count upper case, lower case, digits, and special characters
@@ -90,7 +90,7 @@ int check_password (char *pPasswd, char **ppErrStr, Entry *pEntry)
       else
          special++;
 
-      // count each instance of a character
+      // count characters
       if ((pPasswd[pwlen] > 31) && (pPasswd[pwlen] < 127))
       {
          pos = (size_t)pPasswd[pwlen];
@@ -136,7 +136,7 @@ int check_password (char *pPasswd, char **ppErrStr, Entry *pEntry)
    traits += (digit   != 0) ? 1 : 0;
    traits += (special != 0) ? 1 : 0;
 
-   // discard password which are too short
+   // discard passwords which are too short
    if (pwlen < 8)
    {
       *ppErrStr = strdup("Passwords must be at least 8 characters long");
