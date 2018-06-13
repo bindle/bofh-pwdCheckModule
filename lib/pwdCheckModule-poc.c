@@ -94,13 +94,18 @@ int check_password (char *pPasswd, char **ppErrStr, Entry *pEntry)
       if ((pPasswd[pwlen] > 31) && (pPasswd[pwlen] < 127))
       {
          pos = (size_t)pPasswd[pwlen];
+
+         // count unique characters
+         if (ascii[pos] == 0)
+            uniquechars++;
+
+         // count each instance of a character
          if (ascii[pos] < 254)
             ascii[pos]++;
       };
    };
 
    // determine if a specific character is over 25% of the characters
-   uniquechars = 0;
    for (pos = 31; pos < 127; pos++)
    {
       if (((ascii[pos] * 100) / pwlen) > 25)
@@ -108,8 +113,6 @@ int check_password (char *pPasswd, char **ppErrStr, Entry *pEntry)
          *ppErrStr = strdup("Password contains too many duplicate characters");
          return(LDAP_OTHER);
       };
-      if (ascii[pos] > 0)
-         uniquechars++;
    };
 
    // verify a sufficient number of unique characters relative to the password's length
