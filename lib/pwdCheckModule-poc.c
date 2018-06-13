@@ -122,6 +122,13 @@ int check_password (char *pPasswd, char **ppErrStr, Entry *pEntry)
    traits += (digit   != 0) ? 1 : 0;
    traits += (special != 0) ? 1 : 0;
 
+   // discard passwords which are too short
+   if (pwlen < 8)
+   {
+      *ppErrStr = strdup("Passwords must be at least 8 characters long");
+      return(LDAP_OTHER);
+   }
+
    // verify a sufficient number of unique characters relative to the password's length
    if ( (((uniquechars * 100) / pwlen) < 60) && (pwlen < 16))
    {
@@ -136,13 +143,6 @@ int check_password (char *pPasswd, char **ppErrStr, Entry *pEntry)
    else if ( (((uniquechars * 100) / pwlen) < 20) && (pwlen < 64))
    {
       *ppErrStr = strdup("Password does not contain enough unique characters");
-      return(LDAP_OTHER);
-   };
-
-   // discard passwords which are too short
-   if (pwlen < 8)
-   {
-      *ppErrStr = strdup("Passwords must be at least 8 characters long");
       return(LDAP_OTHER);
    };
 
