@@ -129,36 +129,59 @@ int check_password (char *pPasswd, char **ppErrStr, Entry *pEntry)
       return(LDAP_OTHER);
    }
 
-   // verify a sufficient number of unique characters relative to the password's length
-   if ( (((uniquechars * 100) / pwlen) < 60) && (pwlen < 16))
+   // restrictions for 8 - 15 character passwords
+   else if (pwlen < 16)
    {
-      *ppErrStr = strdup("Password does not contain enough unique characters");
-      return(LDAP_OTHER);
-   }
-   else if ( (((uniquechars * 100) / pwlen) < 50) && (pwlen < 32))
-   {
-      *ppErrStr = strdup("Password does not contain enough unique characters");
-      return(LDAP_OTHER);
-   }
-   else if ( (((uniquechars * 100) / pwlen) < 20) && (pwlen < 64))
-   {
-      *ppErrStr = strdup("Password does not contain enough unique characters");
-      return(LDAP_OTHER);
-   };
+      // require at least 3 password traits
+      if (traits < 3)
+      {
+         *ppErrStr = strdup("Passwords less than 16 characters require at least 3 traits (upper case, lower case, digits, or special characters)");
+         return(LDAP_OTHER);
+      };
 
-   // impose restrictions for 8 - 15 character passwords
-   if ((pwlen < 16) && (traits < 3))
-   {
-      *ppErrStr = strdup("Passwords less than 16 characters require at least 3 traits (upper case, lower case, digits, or special characters)");
-      return(LDAP_OTHER);
-   };
+      // require at least 60% of characters be unique
+      if (((uniquechars * 100) / pwlen) < 60)
+      {
+         *ppErrStr = strdup("Password does not contain enough unique characters");
+         return(LDAP_OTHER);
+      };
+   }
 
-   // impose restrictions for passwords over 15 characters
-   if ((pwlen >= 16) && (traits < 2))
+   // restrictions 16  - 32 character passwords
+   else if (pwlen < 32)
    {
-      *ppErrStr = strdup("Passwords longer than 15 characters require at least 2 traits (upper case, lower case, digits, or special characters)");
-      return(LDAP_OTHER);
-   };
+      // require at least 2 password traits
+      if (traits < 2)
+      {
+         *ppErrStr = strdup("Passwords longer than 15 characters require at least 2 traits (upper case, lower case, digits, or special characters)");
+         return(LDAP_OTHER);
+      };
+
+      // require at least 50% of characters be unique
+      if (((uniquechars * 100) / pwlen) < 50)
+      {
+         *ppErrStr = strdup("Password does not contain enough unique characters");
+         return(LDAP_OTHER);
+      };
+   }
+
+   // restrictions 32+ character passwords
+   else
+   {
+      // require at least 2 password traits
+      if (traits < 2)
+      {
+         *ppErrStr = strdup("Passwords longer than 15 characters require at least 2 traits (upper case, lower case, digits, or special characters)");
+         return(LDAP_OTHER);
+      };
+
+      // require at least 20% of characters be unique
+      if (((uniquechars * 100) / pwlen) < 20)
+      {
+         *ppErrStr = strdup("Password does not contain enough unique characters");
+         return(LDAP_OTHER);
+      };
+   }
 
    // probably an okay password
    return(LDAP_SUCCESS);
