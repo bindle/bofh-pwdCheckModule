@@ -62,6 +62,7 @@ int check_password (char *pPasswd, char **ppErrStr, Entry *pEntry)
    size_t  pwlen;
    size_t  traits;
    size_t  uniquechars;
+   size_t  lastdigits;
    size_t  ascii[128];
 
    digit       = 0;
@@ -70,6 +71,7 @@ int check_password (char *pPasswd, char **ppErrStr, Entry *pEntry)
    special     = 0;
    pwlen       = 0;
    uniquechars = 0;
+   lastdigits  = 0;
 
    memset(ascii, 0, sizeof(ascii));
 
@@ -82,13 +84,25 @@ int check_password (char *pPasswd, char **ppErrStr, Entry *pEntry)
    {
       // count upper case, lower case, digits, and special characters
       if ((pPasswd[pwlen] >= 'A') && (pPasswd[pwlen] <= 'Z'))
+      {
+         lastdigits = 0;
          upper++;
+      }
       else if ((pPasswd[pwlen] >= 'a') && (pPasswd[pwlen] <= 'z'))
+      {
+         lastdigits = 0;
          lower++;
+      }
       else if ((pPasswd[pwlen] >= '0') && (pPasswd[pwlen] <= '9'))
+      {
+         lastdigits++;
          digit++;
+      }
       else
+      {
+         lastdigits = 0;
          special++;
+      };
 
       // count characters
       if ((pPasswd[pwlen] > 31) && (pPasswd[pwlen] < 127))
@@ -132,6 +146,13 @@ int check_password (char *pPasswd, char **ppErrStr, Entry *pEntry)
    // restrictions for 8 - 15 character passwords
    else if (pwlen < 16)
    {
+      // do not allow passwords to end with 2 or 4 digits if only 8 characters
+      if ( (pwlen == 8) && ((lastdigits == 2) || (lastdigits == 4)) )
+      {
+         *ppErrStr = strdup("8 character passwords may not end with 2 or more digits");
+         return(LDAP_OTHER);
+      };
+
       // require at least 3 password traits
       if (traits < 3)
       {
